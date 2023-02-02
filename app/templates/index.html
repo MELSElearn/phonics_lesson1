@@ -1,0 +1,295 @@
+<!doctype HTML>
+<html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">  
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+<script src="https://unpkg.com/aframe-event-set-component@5/dist/aframe-event-set-component.min.js"></script>
+<script src="https://unpkg.com/aframe-layout-component@5.3.0/dist/aframe-layout-component.min.js"></script>
+<script src="https://unpkg.com/aframe-template-component@3.2.1/dist/aframe-template-component.min.js"></script>
+<script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar.js"></script>
+<script>
+    var letter_list = ["a","b","c","d","e"];
+    var question_list =[];
+    var sound_list= ["sounda1","soundb1","soundc1","soundd1","sounde1"];
+    var questionno = 0;
+    var ans_list = ["","","","",""];
+    var answer1 ="";
+</script>
+<script>
+  
+
+  let context;
+  window.onload = function(){
+    context = new AudioContext();
+  }  
+  AFRAME.registerComponent('markerhandler', {
+    init: function () {
+      this.el.addEventListener('markerFound', () => {
+        var markerId = this.el.id;
+        console.log(markerId)
+        if (markerId=="marker1")
+        {
+           // var entity = document.getElementById("sounda1");
+           // entity.components.sound.playSound();
+            ans_list[0] = "a";
+        }
+        if (markerId=="marker2")
+        {
+          //var entity = document.getElementById("soundb1");
+            //entity.components.sound.playSound();
+            ans_list[1] = "b";
+        }
+        if (markerId=="marker3")
+        {
+          //var entity = document.getElementById("soundc1");
+          //entity.components.sound.playSound();
+            ans_list[2] = "c";
+        }
+
+        if (markerId=="marker4")
+        {
+          //var entity = document.getElementById("soundd1");
+          //entity.components.sound.playSound();
+          ans_list[3] = "d";
+        }
+
+        if (markerId=="marker5")
+        {
+          //var entity = document.getElementById("sounde1");
+          //entity.components.sound.playSound();
+          ans_list[4] = "e";
+        }
+        checkanswer();
+            
+      })
+      this.el.addEventListener('markerLost', () => {
+        var markerId = this.el.id;
+        console.log(markerId)
+        marker1Pos = new THREE.Vector3();
+        console.log(this.el.object3D.getWorldPosition(marker1Pos).x);
+
+        if (markerId=="marker1")
+        {
+            ans_list[0] = "";
+        }
+        if (markerId=="marker2")
+        {
+            ans_list[1] = "";
+        }
+        if (markerId=="marker3")
+        {
+            ans_list[2] = "";
+        }
+
+        if (markerId=="marker4")
+        {
+            ans_list[3] = "";
+        }
+
+        if (markerId=="marker5")
+        {
+            ans_list[4] ="";
+        }
+        checkanswer();
+
+
+      })
+    }
+  });
+</script>
+<script>
+    window.onload = function () {
+        question_list = suffle([0,1,2,3,4]);
+        questionno = 0
+        document.getElementById("mybuttons").style.visibility ="visible";
+        document.getElementById("button1").addEventListener("click", function () {
+            var entity = document.getElementById(sound_list[question_list[questionno]]);
+            entity.components.sound.playSound();
+
+        });
+        document.getElementById("mybuttons2").addEventListener("click", function () {
+            shownextquestion();
+        });
+
+       
+    };
+
+    function shownextquestion()
+    {
+        questionno = questionno+1;
+        if (questionno > 4)
+        {
+            questionno = 0
+        }
+        var entity = document.getElementById(sound_list[question_list[questionno]]);
+        entity.components.sound.playSound();
+        document.getElementById("table1").style.visibility ="hidden";
+        ans_list = ["","","","",""];
+    }
+    function checkanswer()
+    {
+        console.log(ans_list);
+        if (letter_list[question_list[questionno]] == ans_list[question_list[questionno]])
+        {
+            console.log("correct");
+            document.getElementById("table1").style.visibility ="visible";
+            document.getElementById("mybuttons").style.visibility ="hidden";
+            document.getElementById("mybuttons2").style.visibility ="visible";
+        }else{
+            document.getElementById("table1").style.visibility ="hidden";
+        }
+    }
+
+    function suffle(array)
+    {
+        var i = array.length,
+		        j = 0,
+		        temp;
+		
+		    while (i--) {
+		
+		        j = Math.floor(Math.random() * (i+1));
+		
+		        // swap randomly chosen element with current element
+		        temp = array[i];
+		        array[i] = array[j];
+		        array[j] = temp;
+		
+		    }
+		
+		    return array;
+    }
+</script>
+<style>
+    .buttons {
+      position: absolute;
+      bottom: 50px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      visibility:hidden;
+    }
+    .tables {
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    visibility:hidden;
+  }
+</style>
+<body style="margin: 0px; overflow: hidden;">
+    <div class="tables" id="table1">
+        <table border="1" width="40%" style="background-color: aqua;">
+            <tr><td align="center">
+                <font size="+3">Yes, you are correct.</font>
+            </td></tr>
+        </table>
+    </div>
+    
+    <div class="buttons" id="mybuttons">
+            <button  id="button1">Start Question</button>&nbsp;
+    </div> 
+    <div class="buttons" id="mybuttons2">
+        <button  id="button2">Next Question</button>&nbsp;
+    </div> 
+   
+  <a-scene
+  vr-mode-ui="enabled: false;"
+  renderer="logarithmicDepthBuffer: true;"
+  embedded
+  arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;">
+
+    <a-assets>
+      <img id="s_a" src="static/pic_letter/s_a.png" />
+      <img id="s_b" src="static/pic_letter/s_b.png" />
+      <img id="s_c" src="static/pic_letter/s_c.png" />
+      <img id="s_d" src="static/pic_letter/s_d.png" />
+      <img id="s_e" src="static/pic_letter/s_e.png" />
+      <img id="s_f" src="static/pic_letter/s_f.png" />
+      <img id="s_g" src="static/pic_letter/s_g.png" />
+      <img id="s_h" src="static/pic_letter/s_h.png" />
+      <img id="s_i" src="static/pic_letter/s_i.png" />
+      <img id="s_j" src="static/pic_letter/s_j.png" />
+      <img id="s_k" src="static/pic_letter/s_k.png" />
+      <img id="s_l" src="static/pic_letter/s_l.png" />
+      <img id="s_m" src="static/pic_letter/s_m.png" />
+      <img id="s_n" src="static/pic_letter/s_n.png" />
+      <img id="s_o" src="static/pic_letter/s_o.png" />
+      <img id="s_p" src="static/pic_letter/s_p.png" />
+      <img id="s_q" src="static/pic_letter/s_q.png" />
+      <img id="s_r" src="static/pic_letter/s_r.png" />
+      <img id="s_s" src="static/pic_letter/s_s.png" />
+      <img id="s_t" src="static/pic_letter/s_t.png" />
+      <img id="s_u" src="static/pic_letter/s_u.png" />
+      <img id="s_v" src="static/pic_letter/s_v.png" />
+      <img id="s_w" src="static/pic_letter/s_w.png" />
+      <img id="s_x" src="static/pic_letter/s_x.png" />
+      <img id="s_y" src="static/pic_letter/s_y.png" />
+      <img id="s_z" src="static/pic_letter/s_z.png" />
+      <audio id="sound_a" src="static/sound/a.mp3" preload="auto" crossorigin="anonymous" poolSize="26"></audio>
+      <audio id="sound_b" src="static/sound/b.mp3" preload="auto" crossorigin="anonymous" poolSize="26"></audio>
+      <audio id="sound_c" src="static/sound/c.mp3" preload="auto" crossorigin="anonymous" poolSize="26"></audio>
+      <audio id="sound_d" src="static/sound/d.mp3" preload="auto" crossorigin="anonymous" poolSize="26"></audio>
+      <audio id="sound_e" src="static/sound/e.mp3" preload="auto" crossorigin="anonymous" poolSize="26"></audio>
+    </a-assets>
+
+    <a-entity sound="src: #sound_a" id="sounda1"></a-entity>
+    <a-entity sound="src: #sound_b" id="soundb1"></a-entity>
+    <a-entity sound="src: #sound_c" id="soundc1"></a-entity>
+    <a-entity sound="src: #sound_d" id="soundd1"></a-entity>
+    <a-entity sound="src: #sound_e" id="sounde1"></a-entity>
+
+    <a-marker id="marker1" markerhandler type="pattern" url="static/pattern/pattern-small_a.patt" smooth="true"
+    smoothCount="10"
+    smoothTolerance=".10"
+    smoothThreshold="5"
+    minConfidence = "0.99">
+      <a-image  id="desc" src="#s_a" rotation="90 0 0" position="0 0 -2.5"></a-image>
+   </a-marker>
+
+   <a-marker id="marker2" markerhandler type="pattern" url="static/pattern/pattern-small_b.patt" smooth="true"
+   smoothCount="10"
+   smoothTolerance=".10"
+   smoothThreshold="5"
+   minConfidence = "0.99">
+    <a-image  id="desc" src="#s_b" rotation="-90 0 0" position="0 0 -2.5"></a-image>
+   </a-marker>
+
+   <a-marker id="marker3" markerhandler type="pattern" url="static/pattern/pattern-small_c.patt" smooth="true"
+   smoothCount="10"
+   smoothTolerance=".10"
+   smoothThreshold="5"
+   minConfidence = "0.99">
+    <a-image  id="desc" src="#s_c" rotation="-90 0 0" position="0 0 -2.5"></a-image>
+   </a-marker>
+
+   <a-marker id="marker4" markerhandler type="pattern" url="static/pattern/pattern-small_d.patt" smooth="true"
+   smoothCount="10"
+   smoothTolerance=".10"
+   smoothThreshold="5"
+   minConfidence = "0.99">
+    <a-image  id="desc" src="#s_d" rotation="-90 0 0" position="0 0 -2.5"></a-image>
+   </a-marker>
+
+   <a-marker id="marker5" markerhandler type="pattern" url="static/pattern/pattern-small_e.patt" smooth="true"
+   smoothCount="10"
+   smoothTolerance=".10"
+   smoothThreshold="5"
+   minConfidence = "0.99">
+    <a-image  id="desc" src="#s_e" rotation="-90 0 0" position="0 0 -2.5"></a-image>
+   </a-marker>
+
+  <a-entity camera></a-entity>
+    
+</a-scene>
+</body>
+</html>
